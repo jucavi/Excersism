@@ -6,11 +6,8 @@ class Matrix
     @columns = columns_generator
   end
 
-  private
   def rows_generator(str)
-    str.lines.map do |sub_str|
-      get_row(sub_str)
-    end
+    str.lines.map { |sub_str| get_row(sub_str) }
   end
 
   def get_row(str)
@@ -20,4 +17,6 @@ class Matrix
   def columns_generator
     rows.transpose
   end
+
+  private :rows_generator, :get_row, :columns_generator
 end
