@@ -1,6 +1,6 @@
 class Luhn
   def initialize(str)
-    @code = code_generator(str)
+    @str = str
   end
 
   def self.valid?(str)
@@ -8,37 +8,28 @@ class Luhn
   end
 
   def valid?
-    valid_length? ? divisible? : false
+    valid_input? && (checksum % 10).zero?
   end
 
   private
-  def code_generator(str)
-    all_digits_or_spaces?(str) ? str.scan(/\d/).map(&:to_i) : []
+
+  def digits
+    @str.scan(/\d/).map(&:to_i)
   end
 
-  def all_digits_or_spaces?(str)
-    str.chars.all? { |chr| chr =~ /[\d\s]/ }
+  def all_digits_or_spaces?
+    @str.chars.all? { |chr| chr =~ /[\d\s]/ }
   end
 
-  def valid_length?
-    @code.length > 1
+  def valid_input?
+    all_digits_or_spaces? && digits.length > 1
   end
 
   def double(num)
-    (num *= 2) > 9 ? num -= 9 : num
+    (num *= 2) > 9 ? num - 9 : num
   end
 
-  def second_double
-    @code.reverse
-      .map
-      .with_index { |num, index| index.odd? ? double(num) : num }
-  end
-
-  def sum
-    second_double.sum
-  end
-
-  def divisible?
-    (sum % 10).zero?
+  def checksum
+    digits.reverse.each_slice(2).sum { |even, odd = 0| even + double(odd) }
   end
 end
