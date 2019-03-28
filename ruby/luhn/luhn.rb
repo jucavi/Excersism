@@ -1,6 +1,6 @@
 class Luhn
   def initialize(str)
-    @str = str
+    @code = str.scan(/[^\s]/)
   end
 
   def self.valid?(str)
@@ -8,21 +8,16 @@ class Luhn
   end
 
   def valid?
-    valid_input? && (checksum % 10).zero?
+    return false if @code.any?(/[^\d]/)
+    return false if @code.length < 2
+
+    (checksum % 10).zero?
   end
 
   private
 
   def digits
-    @str.scan(/\d/).map(&:to_i)
-  end
-
-  def all_digits_or_spaces?
-    @str.chars.all? { |chr| chr =~ /[\d\s]/ }
-  end
-
-  def valid_input?
-    all_digits_or_spaces? && digits.length > 1
+    @code.map(&:to_i)
   end
 
   def double(num)
