@@ -1,8 +1,9 @@
 class Clock
-  attr_reader :minutes
+  MINUTES_PER_HOUR = 60
+  MINUTES_PER_DAY = 1440
 
   def initialize(hour: 0, minute: 0)
-    @minutes = (hour * 60) + minute
+    @minutes = ((hour * MINUTES_PER_HOUR) + minute) % MINUTES_PER_DAY
   end
 
   def to_s
@@ -18,19 +19,16 @@ class Clock
   end
 
   def ==(other)
-    to_s == other.to_s
+    minutes == other.minutes
   end
+
+  protected
+
+  attr_reader :minutes
 
   private
 
   def to_24
-    hours, minutes = @minutes.divmod(60)
-
-    return [hours, minutes] if hours.between?(0, 23)
-    return [0, minutes] if hours == 24
-
-    hours %= 24
-
-    [hours, minutes]
+    @minutes.divmod(MINUTES_PER_HOUR)
   end
 end
