@@ -18,11 +18,7 @@ class HighScores
   end
 
   def report
-    rep = "Your latest score was #{latest}. That's "
-    if latest == personal_best
-      rep += "your personal best!"
-    else
-      rep += "#{personal_best - latest} short of your personal best!"
-    end
+    cond = latest == personal_best ? '' : "#{personal_best - latest} short of "
+    "Your latest score was #{latest}. That's #{cond}your personal best!"
   end
 end
