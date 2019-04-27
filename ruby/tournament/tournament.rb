@@ -1,26 +1,29 @@
 class Tournament
-  OUTCOME = {
-    win: :loss,
-    loss: :win,
-    draw: :draw
-  }.freeze
+  PAIR_RESULTS = { win: :loss, draw: :draw, loss: :win }.freeze
+  RESULTS = PAIR_RESULTS.keys.freeze
+  TOURNAMENT_POINTS = { win: 3, draw: 1, loss: 0 }.freeze
+  Score = Struct.new(:match_played, *RESULTS, :points)
 
-  SCORE = {
-    win: 3,
-    loss: 0,
-    draw: 1
-  }.freeze
+  class Team
+    attr_reader :name, :score
+
+    def initialize(name)
+      @name = name
+      @score = Score.new(0, 0, 0, 0, 0)
+    end
+
+    def add(result)
+      raise ArgumentError unless RESULTS.include?(result)
+
+      @score[result] += 1
+      @score[:match_played] += 1
+      @score[:points] += TOURNAMENT_POINTS[result]
+      self
+    end
+  end
 
   def initialize
-    @teams = Hash.new do |hash, key|
-      hash[key] = {
-        mp: 0,
-        win: 0,
-        draw: 0,
-        loss: 0,
-        p: 0
-      }
-    end
+    @teams = []
   end
 
   def self.tally(input)
@@ -28,38 +31,54 @@ class Tournament
   end
 
   def tally(input)
+    file = data_collection(input) ? header + table_body : header
+
+    file.join("\n") + "\n"
+  end
+
+  # def add_team(name)
+  #   @teams << Team.new(name)
+  # end
+
+  def find_team(name)
+    @teams.select { |team| team.name == name }.first
+  end
+
+  def data_collection(input)
+    return nil if input.chomp.empty?
+
     input.chomp.each_line do |line|
-      parse_line(line).each do |team, outcome|
-        @teams[team][outcome] += 1
-      end unless line.empty?
+      parse_line(line).each do |name, result|
+        add_team_result(name, result)
+      end
     end
-    mp
-    points
-    "Team                           | MP |  W |  D |  L |  P\n" << print.join("\n") << "\n"
+  end
+
+  def add_team_result(name, result)
+    team = find_team(name)
+    team ?  team.add(result) : @teams << Team.new(name).add(result)
   end
 
   def parse_line(line)
     *teams, match_result = line.chomp.split(';')
-    teams.zip([match_result.to_sym, OUTCOME[match_result.to_sym]])
+    result = match_result.to_sym
+
+    teams.zip([result, PAIR_RESULTS[result]])
   end
 
-  def mp
-    @teams.each { |_team, stats| stats[:mp] = stats.values.sum }
+  def print_line(name, stats)
+    [name.ljust(30), *stats].join(' |  ')
   end
 
-  def points
-    @teams.each { |_team, stats| stats.each { |stat, value| stats[:p] += value * SCORE[stat] if SCORE.key?(stat) } }
+  def header
+    ['Team                           | MP |  W |  D |  L |  P']
   end
 
-  def write_line(words)
-    words.join(' |  ')
+  def table_body
+    sort_by(:points).map { |team| print_line(team.name, team.score) }
   end
 
-  def print
-    sorted.map { |team, stats| write_line [team.ljust(30), *stats.values] }
-  end
-
-  def sorted
-    @teams.sort_by { |team, stats| [-stats[:p], team] }
+  def sort_by(stat)
+    @teams.sort_by { |team| [-team.score[stat], team.name] }
   end
 end
