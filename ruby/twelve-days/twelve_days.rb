@@ -1,6 +1,6 @@
-class Twelve
+class TwelveDays
   GIFTS = {
-    first: 'and a Partridge in a Pear Tree',
+    first: 'a Partridge in a Pear Tree',
     second: 'two Turtle Doves',
     third: 'three French Hens',
     fourth: 'four Calling Birds',
@@ -14,25 +14,24 @@ class Twelve
     twelfth: 'twelve Drummers Drumming'
   }.freeze
 
+  DAYS = GIFTS.keys
+
   def self.song
-    (1..GIFTS.size).map { |number| verses(number) }.join("\n")
+    (1..DAYS.size).map { |day| verse(day) }.join("\n")
   end
 
-  def self.verses(number)
-    index = number - 1
-
-    "On the #{day_number(index)} day of Christmas my true love gave to me: "\
-      "#{gifts(index)}.\n"
+  def self.verse(day)
+    "On the #{DAYS[day - 1]} day of Christmas my true love gave to me: " \
+      "#{gifts_sentence(day)}.\n"
   end
 
-  def self.day_number(index)
-    GIFTS.keys[index]
+  def self.gifts(day)
+    GIFTS.values.take(day).reverse
   end
 
-  def self.gifts(index)
-    gifts = GIFTS.values
-    return gifts.first.gsub('and ', '') if index.zero?
+  def self.gifts_sentence(day)
+    *gifts, last_gift = gifts(day)
 
-    gifts[0..index].reverse.join(', ')
+    gifts.empty? ? last_gift : gifts.join(', ') << ", and #{last_gift}"
   end
 end
