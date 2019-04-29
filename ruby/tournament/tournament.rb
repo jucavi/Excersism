@@ -1,26 +1,7 @@
 class Tournament
-  PAIR_RESULTS = { win: :loss, draw: :draw, loss: :win }.freeze
-  RESULTS = PAIR_RESULTS.keys.freeze
-  TOURNAMENT_POINTS = { win: 3, draw: 1, loss: 0 }.freeze
-  Score = Struct.new(:match_played, *RESULTS, :points)
-
-  class Team
-    attr_reader :name, :score
-
-    def initialize(name)
-      @name = name
-      @score = Score.new(0, 0, 0, 0, 0)
-    end
-
-    def add(result)
-      raise ArgumentError unless RESULTS.include?(result)
-
-      @score[result] += 1
-      @score[:match_played] += 1
-      @score[:points] += TOURNAMENT_POINTS[result]
-      self
-    end
-  end
+  OPPOSITE_RESULTS = { win: :loss, draw: :draw, loss: :win }.freeze
+  TOURNAMENT_PUNTUATION = { win: 3, draw: 1, loss: 0 }.freeze
+  HEADER = %w[team matches\ played won drawn lost points].freeze
 
   def initialize
     @teams = []
@@ -31,14 +12,35 @@ class Tournament
   end
 
   def tally(input)
-    file = data_collection(input) ? header + table_body : header
+    file = data_collection(input) ? header + table_body_by(:points) : header
+    stat_size = row_size(file)
 
-    file.join("\n") + "\n"
+    file.map { |name, stats| print_line(name, stats, 30, stat_size) }
+        .join("\n") + "\n"
   end
 
-  # def add_team(name)
-  #   @teams << Team.new(name)
-  # end
+  private
+
+  # Team class
+  class Team
+    attr_reader :name, :score
+    RESULTS = OPPOSITE_RESULTS.keys.freeze
+    Score = Struct.new(:match_played, *RESULTS, :points)
+
+    def initialize(name)
+      @name = name
+      @score = Score.new(0, 0, 0, 0, 0)
+    end
+
+    def add(result)
+      raise ArgumentError unless RESULTS.include?(result)
+
+      @score[:match_played] += 1
+      @score[result] += 1
+      @score[:points] += TOURNAMENT_PUNTUATION[result]
+      self
+    end
+  end
 
   def find_team(name)
     @teams.select { |team| team.name == name }.first
@@ -63,22 +65,37 @@ class Tournament
     *teams, match_result = line.chomp.split(';')
     result = match_result.to_sym
 
-    teams.zip([result, PAIR_RESULTS[result]])
+    # [[team1, :outcome], [team2, :opposite_outcome]]
+    teams.zip([result, OPPOSITE_RESULTS[result]])
   end
 
-  def print_line(name, stats)
-    [name.ljust(30), *stats].join(' |  ')
+  def row_size(file)
+    file.map { |_name, score| score.map { |s| s.to_s.length }.max }.max
+  end
+
+  def parse_stats(stats, stat_row)
+    stats.map { |a| a.to_s.rjust(stat_row) }
+  end
+
+  def print_line(name, stats, name_row, stat_row)
+    [name.ljust(name_row), *parse_stats(stats, stat_row)].join(' | ')
+  end
+
+  def acronym(scores)
+    scores.map { |stat| stat.split.map(&:chr).join.upcase }
   end
 
   def header
-    ['Team                           | MP |  W |  D |  L |  P']
+    team, *scores = HEADER
+
+    [[team.capitalize, acronym(scores)]]
   end
 
-  def table_body
-    sort_by(:points).map { |team| print_line(team.name, team.score) }
+  def table_body_by(stat = :points)
+    sort_by(stat).map { |team| [team.name, team.score.to_a] }
   end
 
-  def sort_by(stat)
+  def sort_by(stat = :points)
     @teams.sort_by { |team| [-team.score[stat], team.name] }
   end
 end
