@@ -4,7 +4,7 @@ class SpaceAge
   end
 
   private
-  EARTH_PERIOD = 31557600
+  EARTH_PERIOD = 31_557_600
   RELATIVES_ORBITS = {
     'earth': 1,
     'mercury': 0.2408467,
@@ -14,7 +14,7 @@ class SpaceAge
     'saturn':  29.447498,
     'uranus':  84.016846,
     'neptune':  164.79132
-  }
+  }.freeze
 
   def normalize_orbit(planet)
     (RELATIVES_ORBITS[planet] * EARTH_PERIOD).to_f
@@ -22,7 +22,7 @@ class SpaceAge
 
   def method_missing(meth, *args, &blk)
     meth.to_s =~ /^on_(.*)$/
-    if RELATIVES_ORBITS.keys.include?(:"#{$1}")
+    if RELATIVES_ORBITS.key?(:"#{$1}")
       define_singleton_method(meth) do
         @age / normalize_orbit($1.to_sym)
       end

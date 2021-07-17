@@ -1,6 +1,7 @@
 class CollatzConjecture
   def self.steps(number)
-    valid?(number)
+    raise ArgumentError if number < 1
+
     steps = 0
     until number.eql?(1)
       number = process(number)
@@ -11,13 +12,9 @@ class CollatzConjecture
 
   def self.process(number)
     if number.even?
-      number /  2
+      number / 2
     else
       3 * number + 1
     end
-  end
-
-  def self.valid?(number)
-    raise ArgumentError if number < 1
   end
 end

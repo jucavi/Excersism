@@ -3,6 +3,7 @@ class BinarySearch
 
   def initialize(list)
     raise ArgumentError unless list.sort.eql?(list)
+
     @list = list
   end
 

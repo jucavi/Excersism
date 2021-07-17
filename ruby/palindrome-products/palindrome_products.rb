@@ -9,7 +9,7 @@ class Palindromes
   end
 
   def palindrome?(number)
-    number.to_s.reverse = number.to_s
+    number.to_s.reverse == number.to_s
   end
 
   def factors(number)

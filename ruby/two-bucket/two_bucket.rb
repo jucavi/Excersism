@@ -23,20 +23,20 @@ class TwoBucket
 
   def solve?
     @buckets.each do |tag, bucket|
-      if bucket.got?(@desire)
-        @goal_bucket = tag
-        @other_bucket = @buckets[get_other(tag)].volume
-        return true
-      end
+      next unless bucket.got?(@desire)
+
+      @goal_bucket = tag
+      @other_bucket = @buckets[get_other(tag)].volume
+      return true
     end
     false
   end
 
   def second_desired?
-    if @buckets[@second].capacity.eql?(@desire)
-      @buckets[@second].fill
-      add_move
-    end
+    return unless @buckets[@second].capacity.eql?(@desire)
+
+    @buckets[@second].fill
+    add_move
   end
 
   def call_solution
@@ -89,13 +89,11 @@ class Bucket
 
   def pour(other_bucket)
     if other_bucket.to_fill - @volume < 0
-      @volume = @volume - other_bucket.to_fill
+      @volume -= other_bucket.to_fill
       other_bucket.fill
     else
-      other_bucket.volume = other_bucket.volume + @volume
-      self.empty
+      other_bucket.volume += @volume
+      empty
     end
   end
 end
-
-

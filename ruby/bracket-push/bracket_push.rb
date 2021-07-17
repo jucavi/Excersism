@@ -1,7 +1,13 @@
 class Brackets
+  MATCH_PAIRS = {
+    '}' => '{',
+    ']' => '[',
+    ')' => '('
+  }.freeze
+
   def self.paired?(str)
     sequence(str).each_with_object([]) do |bracket, stack|
-      if MATCH_PAIRS.values.include?(bracket)
+      if MATCH_PAIRS.value?(bracket)
         stack << bracket
       elsif stack.last.eql?(MATCH_PAIRS[bracket])
         stack.pop
@@ -15,10 +21,5 @@ class Brackets
     str.chars.select { |char| (MATCH_PAIRS.keys | MATCH_PAIRS.values).include?(char) }
   end
 
-  private
-  MATCH_PAIRS = {
-    '}' => '{',
-    ']' => '[',
-    ')' => '('
-  }
+  private_constant :MATCH_PAIRS
 end
