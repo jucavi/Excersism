@@ -1,8 +1,10 @@
 public class Lasagna {
+    final int TIME_IN_OVEN = 40;
+    final int TIME_PER_LAYER = 2;
 
     // TODO: define the 'expectedMinutesInOven()' method
     public int expectedMinutesInOven() {
-        return 40;
+        return TIME_IN_OVEN;
     }
 
     // TODO: define the 'remainingMinutesInOven()' method
@@ -12,8 +14,7 @@ public class Lasagna {
 
     // TODO: define the 'preparationTimeInMinutes()' method
     public  int preparationTimeInMinutes(int numLayers) {
-        int timePerLayer = 2;
-        return numLayers *  timePerLayer;
+        return numLayers *  TIME_PER_LAYER;
     }
 
     // TODO: define the 'totalTimeInMinutes()' method
