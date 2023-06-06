@@ -1,9 +1,9 @@
 public class Twofer {
-    final String format = "One for %s, one for me.";
+
     public String twofer(String name) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             name = "you";
         }
-        return String.format(format, name);
+        return "One for " + name + ", one for me.";
     }
 }
