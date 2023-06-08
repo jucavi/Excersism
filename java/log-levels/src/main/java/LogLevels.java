@@ -2,44 +2,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogLevels {
-    final private static String PATTERN = "^\\[([A-Z]+)]:(\\s*.+\\s*)";
+    final private static String PATTERN = "^\\[(?<level>[A-Z]+)]:\\s*(?<message>.+)\\s*";
+    final private static Pattern pattern = Pattern.compile(PATTERN);
 
     private static Matcher parseLogLine(String logLine) {
-        Pattern p = Pattern.compile(PATTERN);
-
-        return p.matcher(logLine);
+        Matcher m = pattern.matcher(logLine);
+        m.find();
+        return m;
     }
 
     public static String message(String logLine) {
-        try {
-            Matcher m = parseLogLine(logLine);
-
-            if (m.matches()) {
-                return m.group(2).strip();
-            }
-        } catch (NullPointerException e) {
-            e.getMessage();
-        }
-        return "";
+        return parseLogLine(logLine).group("message").strip();
     }
 
     public static String logLevel(String logLine) {
-
-        try {
-            Matcher m = parseLogLine(logLine);
-
-            if (m.matches()) {
-                return m.group(1).toLowerCase();
-            }
-        } catch (NullPointerException e) {
-            e.getMessage();
-        }
-
-        return "";
+        return parseLogLine(logLine).group("level").toLowerCase();
     }
 
     public static String reformat(String logLine) {
-
-        return message(logLine) + " (" + logLevel(logLine) +")";
+        return String.format("%s (%s)", message(logLine), logLevel(logLine));
     }
 }
